@@ -1,0 +1,4 @@
+#!/bin/sh
+#python -m venv .name
+SOURCE_DATE_EPOCH=315532800 nix-shell
+#source .bot-env/bin/activate
