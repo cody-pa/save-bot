@@ -4,15 +4,9 @@ import configparser
 import random
 import os.path
 
-#classes ==================================================
-#class UserCache:
-#    rolebanned = False
-#    roles = []
-
 #variables ================================================
 client = discord.Client()
-#global user_cache
-#user_cache = dict()
+EMOJI = "📌"
 
 #functions ================================================
 def locate_channel(guild, channelName):
@@ -27,8 +21,9 @@ def remove_prefix(text, prefix):
 #events ===================================================
 @client.event
 async def on_ready():
+    global EMOJI
     print('logged in'.format(client))
-    act = discord.Activity(type=discord.ActivityType.custom, name="⭐subscribe")
+    act = discord.Activity(type=discord.ActivityType.custom, name=EMOJI+"subscribe")
     await client.change_presence(activity=act)
 
 
@@ -36,8 +31,8 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-
-    if message.content.strip().lower() == "⭐subscribe":
+    global EMOJI
+    if message.content.strip().lower() == EMOJI+"subscribe":
         if isinstance(message.channel, discord.DMChannel):
             await message.channel.send("I think this is a DM. You can't use this feature in DMs.")
         else:
@@ -55,7 +50,8 @@ async def on_message(message):
 
 @client.event
 async def on_raw_reaction_add(data):
-    if data.emoji.name == "⭐":
+    global EMOJI
+    if data.emoji.name == EMOJI:
         filename = "./guilds/" + str(data.guild_id) + "/" + str(data.user_id)
         if os.path.exists(filename):
             guild = discord.utils.get(client.guilds, id=data.guild_id)
