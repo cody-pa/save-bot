@@ -1,2 +1,2 @@
-# star-bot
-This bot allows you to subscribe to it and will then send you a DM duplicate of any message you react to with a star emoji, including embeds.
+# save-bot
+this discord bot allows you to subscribe, and when a subscribed user reacts to a message with a pushpin emoji, the bot will DM them a copy of the post including urls to all the embeds
