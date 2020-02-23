@@ -4,9 +4,15 @@ import configparser
 import random
 import os.path
 
+#classes ==================================================
+#class UserCache:
+#    rolebanned = False
+#    roles = []
+
 #variables ================================================
 client = discord.Client()
-DEFAULT_EMOJI = "📌"
+#global user_cache
+#user_cache = dict()
 
 #functions ================================================
 def locate_channel(guild, channelName):
@@ -18,16 +24,11 @@ def locate_channel(guild, channelName):
 def remove_prefix(text, prefix):
     return text[text.startswith(prefix) and len(prefix):]
 
-##def get_guild_emoji(guild_id):
- #   path="./guilds/" + str(guild_id) + "/emoji"
- #   if 
-
 #events ===================================================
 @client.event
 async def on_ready():
-    global DEFAULT_EMOJI
     print('logged in'.format(client))
-    act = discord.Activity(type=discord.ActivityType.custom, name=DEFAULT_EMOJI+"subscribe")
+    act = discord.Activity(type=discord.ActivityType.custom, name="⭐subscribe")
     await client.change_presence(activity=act)
 
 
@@ -35,13 +36,26 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    global DEFAULT_EMOJI
-    command = message.content.strip().lower().replace(" ", "")
+
+    if message.content.strip().lower() == "⭐subscribe":
+        if isinstance(message.channel, discord.DMChannel):
+            await message.channel.send("I think this is a DM. You can't use this feature in DMs.")
+        else:
+            dirname = "./guilds/" + str(message.channel.guild.id)
+            if not os.path.exists(dirname):
+                os.mkdir(dirname)
+            filename = dirname + "/" + str(message.author.id)
+            if os.path.exists(filename):
+                #already subscribed
+                os.remove(filename)
+                await message.channel.send("Unsubscribed you from this server.")
+            else:
+                open(filename, 'a').close()
+                await message.channel.send("Subscribed you on this server.")
 
 @client.event
 async def on_raw_reaction_add(data):
-    global DEFAULT_EMOJI
-    if data.emoji.name == DEFAULT_EMOJI:
+    if data.emoji.name == "⭐":
         filename = "./guilds/" + str(data.guild_id) + "/" + str(data.user_id)
         if os.path.exists(filename):
             guild = discord.utils.get(client.guilds, id=data.guild_id)
@@ -57,8 +71,6 @@ async def on_raw_reaction_add(data):
                 await member.create_dm()
                 dm_channel = member.dm_channel
             await dm_channel.send("**==== NEW MESSAGE ====**\n" + message.content + attachment_string)
-
-        
 
 f=open("./token","r")
 token = f.read().strip()
