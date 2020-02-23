@@ -82,10 +82,6 @@ async def on_message(message):
             else:
                 await message.channel.send("You need Manage Server permission to do that.")
 
-    else:
-        print("\"" + message.content + "\" does not start with \"" + client.user.mention + "\"")
-        await message.channel.send(message.content + " does not start with " + client.user.mention)
-
 @client.event
 async def on_raw_reaction_add(data):
     if data.emoji.name == get_guild_emoji(data.guild_id):
