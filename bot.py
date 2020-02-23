@@ -89,7 +89,11 @@ async def on_raw_reaction_add(data):
         channel = discord.utils.get(guild.channels, id=data.channel_id)
         message = await channel.fetch_message(data.message_id)
         member = discord.utils.get(guild.members, id=data.user_id)
-        attachment_string = "\n\n**attachments:**"
+        attachment_string = "\n**attachments:**"
+
+        for attachment in message.attachments:
+            print("attachment: " + attachment.url)
+            attachment_string += "\n" + attachment.url
 
         dm_channel = member.dm_channel
         if dm_channel == None:
