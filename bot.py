@@ -4,11 +4,9 @@ import configparser
 import random
 import os.path
 
-#variables ================================================
-client = discord.Client()
-EMOJI = "📌"
+client = discord.Client(intents = discord.Intents.all())
+EMOJI = "💾"
 
-#functions ================================================
 def locate_channel(guild, channelName):
     for chan in guild.channels:
         if chan.name == channelName:
@@ -33,20 +31,17 @@ def get_guild_emoji(guild_id):
         print("retrieved emoji for server: " + emoji)
         return emoji
     else:
-        print("No entry for this server")
+        print("No custom emoji for guild " + str(guild_id))
 
     global EMOJI
     return EMOJI
-
 
 #events ===================================================
 @client.event
 async def on_ready():
     global EMOJI
     print('logged in'.format(client))
-    act = discord.Activity(type=discord.ActivityType.custom, name=EMOJI+"subscribe")
-    await client.change_presence(activity=act)
-
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=" pings."))
 
 @client.event
 async def on_message(message):
@@ -78,27 +73,32 @@ async def on_message(message):
                     print("Set emoji on " + str(message.channel.guild.id) + " to " + command)
 
                 else:
-                    await message.channel.send("I can't do anything with empty commands.")
+                    await message.channel.send("Server save emoji is " + get_guild_emoji(message.channel.guild.id) + '.\nServer admins can change it by pinging me followed by a new emoji (e.g `@DM-Save Bot :emoji:`), or reset it to default by pinging me followed by "reset" (e.g `@DM-Save Bot reset`)')
             else:
                 await message.channel.send("You need Manage Server permission to do that.")
 
 @client.event
 async def on_raw_reaction_add(data):
     if data.emoji.name == get_guild_emoji(data.guild_id):
+        print("\nReaction event fired.")
         guild = discord.utils.get(client.guilds, id=data.guild_id)
+        print("Reaction occurred in guild: " + str(guild))
         channel = discord.utils.get(guild.channels, id=data.channel_id)
-        message = await channel.fetch_message(data.message_id)
-        member = discord.utils.get(guild.members, id=data.user_id)
-        attachment_string = "\n**attachments:**"
-
-        for attachment in message.attachments:
-            print("attachment: " + attachment.url)
-            attachment_string += "\n" + attachment.url
+        print("In channel: " + str(channel))
+        member = guild.get_member(data.user_id)
+        print("Member: " + str(member))
 
         dm_channel = member.dm_channel
         if dm_channel == None:
             await member.create_dm()
             dm_channel = member.dm_channel
+        
+        message = await channel.fetch_message(data.message_id)
+        attachment_string = ""
+        if len(message.attachments) > 0:
+            for attachment in message.attachments:
+                print("attachment: " + attachment.url)
+                attachment_string += "\n" + attachment.url
         await dm_channel.send("**==== NEW MESSAGE ====**\n" + message.content + attachment_string)
 
 f=open("./token","r")
