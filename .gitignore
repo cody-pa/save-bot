@@ -1,3 +1,5 @@
 .bot-env
 guilds
 token
+token.backup
+backup-data
